@@ -1,0 +1,2602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>NEXUS // RECOVERY TERMINAL</title>
+
+<style>
+
+/* =========================================================
+   NEXUS ARG — MAIN STYLING
+   Change colors, fonts, spacing, etc. here.
+   ========================================================= */
+
+:root {
+    --background: #050708;
+    --panel: #0b1012;
+    --panel-light: #0f1619;
+
+    --text: #c9d4d2;
+    --muted: #617477;
+
+    --green: #72f1a8;
+    --red: #ff5f6d;
+    --amber: #e8c56a;
+    --cyan: #64d8ff;
+
+    --border: #1d3035;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+
+    background:
+        radial-gradient(
+            circle at 50% -10%,
+            #122025 0,
+            #050708 42%
+        );
+
+    color: var(--text);
+
+    font-family: "Courier New", monospace;
+
+    min-height: 100vh;
+}
+
+/* CRT / scanline effect */
+
+body::before {
+    content: "";
+
+    position: fixed;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    opacity: 0.035;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            #fff 0 1px,
+            transparent 1px 3px
+        );
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+header {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 20;
+
+    background: rgba(5,7,8,0.94);
+
+    border-bottom: 1px solid var(--border);
+
+    backdrop-filter: blur(8px);
+}
+
+.nav {
+    max-width: 1180px;
+
+    margin: auto;
+
+    padding: 14px 20px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+}
+
+.logo {
+    color: var(--green);
+
+    font-weight: bold;
+
+    letter-spacing: 3px;
+}
+
+.status {
+    font-size: 11px;
+
+    color: var(--muted);
+}
+
+
+/* =========================================================
+   MAIN PAGE
+   ========================================================= */
+
+main {
+    max-width: 1180px;
+
+    margin: auto;
+
+    padding: 30px 20px 80px;
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.hero {
+    border: 1px solid var(--border);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15,22,25,0.94),
+            rgba(5,8,9,0.94)
+        );
+
+    padding: 34px;
+
+    margin-bottom: 24px;
+
+    box-shadow:
+        0 0 28px rgba(100,216,255,0.05);
+}
+
+.kicker {
+    color: var(--cyan);
+
+    font-size: 12px;
+
+    letter-spacing: 3px;
+}
+
+.hero h1 {
+    font-size: clamp(30px,6vw,68px);
+
+    margin: 10px 0;
+
+    color: #e8f1ef;
+
+    letter-spacing: 5px;
+}
+
+.hero p {
+    max-width: 780px;
+
+    color: #849799;
+
+    line-height: 1.7;
+}
+
+.warning {
+    border-left: 3px solid var(--red);
+
+    padding: 12px 16px;
+
+    background: #170b0e;
+
+    color: #c9969b;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(290px,1fr)
+        );
+
+    gap: 14px;
+}
+
+.card {
+    border: 1px solid var(--border);
+
+    background: var(--panel);
+
+    padding: 20px;
+
+    box-shadow:
+        0 0 28px rgba(100,216,255,0.05);
+}
+
+.card h2 {
+    font-size: 16px;
+
+    color: var(--green);
+
+    margin-top: 0;
+}
+
+.card p,
+.card li {
+    font-size: 13px;
+
+    line-height: 1.65;
+
+    color: #87989a;
+}
+
+
+/* =========================================================
+   BUTTONS / INPUTS
+   ========================================================= */
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+button {
+    background: #0d1a1d;
+
+    color: var(--green);
+
+    border: 1px solid #315157;
+
+    padding: 10px 14px;
+
+    cursor: pointer;
+}
+
+button:hover {
+    background: #13272b;
+
+    border-color: var(--green);
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+
+    background: #050809;
+
+    color: #d8e4e1;
+
+    border: 1px solid #2a4145;
+
+    padding: 12px;
+
+    outline: none;
+}
+
+input:focus,
+textarea:focus {
+    border-color: var(--cyan);
+
+    box-shadow:
+        0 0 12px rgba(100,216,255,0.1);
+}
+
+label {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    margin: 14px 0 6px;
+
+    letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   PUZZLE STAGES
+   ========================================================= */
+
+.stage {
+    margin: 20px 0;
+
+    border: 1px solid var(--border);
+
+    background: rgba(8,12,13,0.9);
+}
+
+.stage summary {
+    list-style: none;
+
+    padding: 17px 20px;
+
+    cursor: pointer;
+
+    border-bottom: 1px solid var(--border);
+
+    display: flex;
+
+    justify-content: space-between;
+}
+
+.stage summary::-webkit-details-marker {
+    display: none;
+}
+
+.stage summary b {
+    color: var(--cyan);
+}
+
+.stagebody {
+    padding: 22px;
+}
+
+
+/* =========================================================
+   CODE BOX
+   ========================================================= */
+
+.codebox {
+    white-space: pre-wrap;
+
+    word-break: break-word;
+
+    background: #030506;
+
+    border: 1px solid #17282b;
+
+    padding: 18px;
+
+    color: #8ca6a8;
+
+    line-height: 1.7;
+
+    max-height: 430px;
+
+    overflow: auto;
+}
+
+
+/* =========================================================
+   COLORS
+   ========================================================= */
+
+.bad {
+    color: var(--red);
+}
+
+.good {
+    color: var(--green);
+}
+
+.amber {
+    color: var(--amber);
+}
+
+.morse {
+    font-size: 18px;
+
+    letter-spacing: 4px;
+
+    color: var(--cyan);
+}
+
+
+/* =========================================================
+   FILES
+   ========================================================= */
+
+.file {
+    border: 1px dashed #2a4145;
+
+    padding: 15px;
+
+    margin: 10px 0;
+
+    background: #070c0d;
+}
+
+.file b {
+    color: var(--amber);
+}
+
+.file small {
+    color: var(--muted);
+}
+
+
+/* =========================================================
+   PATTERN PUZZLE
+   ========================================================= */
+
+.matrix {
+    display: grid;
+
+    grid-template-columns:
+        repeat(10,1fr);
+
+    gap: 5px;
+
+    max-height: 360px;
+
+    overflow: auto;
+}
+
+.matrix span {
+    padding: 7px 3px;
+
+    text-align: center;
+
+    background: #081012;
+
+    color: #698184;
+
+    font-size: 11px;
+
+    border: 1px solid #102024;
+}
+
+.matrix span.hot {
+    color: var(--green);
+
+    border-color: #315b48;
+}
+
+
+/* =========================================================
+   IMAGE PLACEHOLDER
+   Replace this with your real ARG image later.
+   ========================================================= */
+
+.media {
+    height: 260px;
+
+    border: 1px solid #22363a;
+
+    background:
+        linear-gradient(
+            130deg,
+            transparent 0 46%,
+            #22363a 46% 47%,
+            transparent 47%
+        ),
+        linear-gradient(
+            0deg,
+            transparent 0 68%,
+            #1b2b2f 68% 70%,
+            transparent 70%
+        ),
+        radial-gradient(
+            circle at 75% 28%,
+            #24383b 0 7%,
+            transparent 8%
+        ),
+        linear-gradient(
+            135deg,
+            #101a1c,
+            #050708
+        );
+
+    display: flex;
+
+    align-items: end;
+
+    padding: 18px;
+
+    color: #6e8588;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.footer {
+    text-align: center;
+
+    color: #3e5659;
+
+    font-size: 11px;
+
+    padding: 40px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media(max-width:600px) {
+
+    .hero {
+        padding: 22px;
+    }
+
+    .matrix {
+        grid-template-columns:
+            repeat(5,1fr);
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =======================================================
+     HEADER
+     ======================================================= -->
+
+<header>
+
+<div class="nav">
+
+<div class="logo">
+NEXUS // RECOVERY
+</div>
+
+<div
+class="status"
+id="status">
+
+OFFLINE // CASE UNVERIFIED
+
+</div>
+
+</div>
+
+</header>
+
+
+
+<main>
+
+
+<!-- =======================================================
+     INTRODUCTION
+     ======================================================= -->
+
+<section class="hero">
+
+<div class="kicker">
+ARCHIVE NODE 07 // UNAUTHORIZED ACCESS
+</div>
+
+<h1>
+THE NEXUS CASE
+</h1>
+
+<p>
+
+A damaged recovery terminal has been restored.
+
+Twelve layers remain.
+
+The system does not call them puzzles.
+
+</p>
+
+<div class="warning">
+
+WARNING:
+
+SYSTEM LOGS MAY HAVE BEEN ALTERED.
+
+Do not trust a record merely because it appears official.
+
+</div>
+
+</section>
+
+
+
+<!-- =======================================================
+     STATUS
+     ======================================================= -->
+
+<div class="grid">
+
+
+<div class="card">
+
+<h2>
+RECOVERY PROTOCOL
+</h2>
+
+<p>
+
+Investigate the terminal in order.
+
+Record every code, timestamp,
+name and suspicious discrepancy.
+
+Some discoveries will only become meaningful later.
+
+</p>
+
+</div>
+
+
+
+<div class="card">
+
+<h2>
+CASE STATUS
+</h2>
+
+<p id="caseStatus">
+
+0 / 12 stages verified
+
+</p>
+
+<button onclick="resetCase()">
+
+RESET LOCAL CASE
+
+</button>
+
+</div>
+
+
+</div>
+
+
+
+<!-- =======================================================
+     PUZZLE 1
+     ======================================================= -->
+
+<details
+class="stage"
+id="s1"
+open>
+
+<summary>
+
+<b>
+RECOVERED LOG // 001
+</b>
+
+<span>
+CODE FINDING
+</span>
+
+</summary>
+
+
+<div class="stagebody">
+
+<p>
+
+Integrity scan failed.
+
+The following log contains corrupted characters.
+
+A few entries do not belong.
+
+</p>
+
+
+<div
+class="codebox"
+id="corruptLog">
+</div>
+
+
+<label>
+RECOVERED CODE
+</label>
+
+
+<input
+id="a1"
+placeholder="enter code">
+
+
+<button
+onclick="check(1,'a1','SILENT')">
+
+VERIFY
+
+</button>
+
+
+<div
+id="r1"
+class="result">
+</div>
+
+
+</div>
+
+</details>
+
+
+
+<!-- =======================================================
+     PUZZLE 2
+     ======================================================= -->
+
+<details
+class="stage"
+id="s2">
+
+<summary>
+
+<b>
+RECOVERED DATASET // 002
+</b>
+
+<span>
+PATTERN RECOGNITION
+</span>
+
+</summary>
+
+
+<div class="stagebody">
+
+<p>
+
+Do not discard this sequence.
+
+Another recovery layer will refer to it later.
+
+</p>
+
+
+<div
+class="matrix"
+id="matrix">
+</div>
+
+
+<p class="amber">
+
+Hint:
+
+inspect the timestamps as positions,
+not as dates.
+
+</p>
+
+
+<label>
+RECOVERED CODE
+</label>
+
+
+<input
+id="a2"
+placeholder="enter code">
+
+
+<button
+onclick="check(2,'a2','VECTOR')">
+
+VERIFY
+
+</button>
+
+
+<div
+id="r2"
+class="result">
+</div>
+
+</div>
+
+</details>
+
+
+
+<!-- =======================================================
+     PUZZLE 3
+     ======================================================= -->
+
+<details
+class="stage"
+id="s3">
+
+<summary>
+
+<b>
+PERSONNEL INDEX // 003
+</b>
+
+<span>
+NAME FINDING
+</span>
+
+</summary>
+
+
+<div class="stagebody">
+
+<p>
+
+Personnel records recovered.
+
+Some entries were duplicated.
+
+Some were partially erased.
+
+One developer appears in multiple unrelated logs.
+
+</p>
+
+
+
+<div class="grid">
+
+
+<div class="file">
+
+DEV-014 — A. MERCER
+
+<br>
+
+STATUS: ARCHIVED
+
+</div>
+
+
+
+<div class="file">
+
+DEV-021 —
+
+<span class="bad">
+
+ER█N ASHII
+
+</span>
+
+<br>
+
+STATUS: UNKNOWN
+
+</div>
+
+
+
+<div class="file">
+
+DEV-021 —
+
+ERINASHII
+
+<br>
+
+STATUS: RESTRICTED
+
+</div>
+
+
+
+<div class="file">
+
+DEV-031 — M. VALE
+
+<br>
+
+STATUS: TRANSFERRED
+
+</div>
+
+
+</div>
+
+
+<label>
+ENTER NAME
+</label>
+
+
+<input
+id="a3"
+placeholder="developer name">
+
+
+<button
+onclick="check(3,'a3','ERINASHII')">
+
+SUBMIT
+
+</button>
+
+
+<div
+id="r3"
+class="result">
+</div>
+
+</div>
+
+</details>
+
+
+
+<!-- =======================================================
+     PUZZLE 4
+     ======================================================= -->
+
+<details
+class="stage"
+id="s4">
+
+<summary>
+
+<b>
+TRANSLATION LAYER // 004
+</b>
+
+<span>
+BINARY → CAESAR → MORSE
+</span>
+
+</summary>
+
+
+<div class="stagebody">
+
+
+<p>
+
+Three transformations are required.
+
+The first output should tell you
+how to interpret the second.
+
+The second output should reveal the third.
+
+</p>
+
+
+<div class="codebox">
+
+01001110 01001111 01010100
+
+00100000
+
+01000011 01000001 01000101 01010011 01000001 01010010
+
+</div>
+
+
+<p class="amber">
+
+Binary output:
+
+NOT CAESAR
+
+</p>
+
+
+<p>
+
+Correction:
+
+the visible note is itself corrupted.
+
+Try the standard Caesar shift hidden by the binary result.
+
+</p>
+
+
+<div class="codebox">
+
+KHOOR / PRUVH / 7
+
+</div>
+
+
+<p class="morse">
+
+--.. . .-. ---
+
+</p>
+
+
+<label>
+
+FINAL CODE FROM THIS LAYER
+
+</label>
+
+
+<input
+id="a4"
+placeholder="enter code">
+
+
+<button
+onclick="check(4,'a4','ZERO')">
+
+VERIFY
+
+</button>
+
+
+<div
+id="r4"
+class="result">
+</div>
+
+
+</div>
+
+</details>
+
+
+
+<!-- =======================================================
+     PUZZLE 5
+     ======================================================= -->
+
+<details
+class="stage"
+id="s5">
+
+<summary>
+
+<b>
+ENCRYPTED BULK // 005
+</b>
+
+<span>
+FAKE CODE
+</span>
+
+</summary>
+
+
+<div class="stagebody">
+
+
+<p>
+
+A decryption operation is available.
+
+It is probably a trap.
+
+</p>
+
+
+<div
+class="codebox"
+id="fakeCode">
+</div>
+
+
+<button
+onclick="fakeDecrypt()">
+
+DECRYPT
+
+</button>
+
+
+<div
+id="fakeResult"
+class="result">
+</div>
+
+
+<p>
+
+Look for a sequence that belongs
+to the earlier dataset.
+
+The answer is not in this block.
+
+</p>
+
+
+<label>
+RECOVERED CODE
+</label>
+
+
+<input
+id="a5"
+placeholder="enter code">
+
+
+<button
+onclick="check(5,'a5','RETURN')">
+
+VERIFY
+
+</button>
+
+
+<div
+id="r5"
+class="result">
+</div>
+
+
+</div>
+
+</details>
+
+
+
+<!-- =======================================================
+     PUZZLE 6
+     ======================================================= -->
+
+<details
+class="stage"
+id="s6">
+
+<summary>
+
+<b>
+RECOVERED MEDIA // 006
+</b>
+
+<span>
+IMAGE INVESTIGATION
+</span>
+
+</summary>
+
+
+<div class="stagebody">
+
+
+<div class="media">
+
+NEXUS AI PROJECT //
+
+LAB 3 //
+
+PHOTOGRAPH RECONSTRUCTION
+
+</div>
+
+
+<p>
+
+Visual details recovered:
+
+<span class="amber">
+06/10/26
+</span>
+
+·
+
+room
+
+<span class="amber">
+317
+</span>
+
+·
+
+symbol
+
+<span class="amber">
+△
+</span>
+
+·
+
+monitor fragment
+
+<span class="amber">
+03:01
+</span>
+
+</p>
+
+
+<p>
+
+One of these is useful.
+
+The others may be noise.
+
+Inspect the composition.
+
+The useful detail is the one
+that connects to the case timeline.
+
+</p>
+
+
+<label>
+RECOVERED CODE
+</label>
+
+
+<input
+id="a6"
+placeholder="enter code">
+
+
+<button
+onclick="check(6,'a6','317')">
+
+VERIFY
+
+</button>
+
+
+<div
+id="r6"
+class="result">
+</div>
+
+
+</div>
+
+</details>
+
+
+
+<!-- =======================================================
+     PUZZLE 7
+     ======================================================= -->
+
+<details
+class="stage"
+id="s7">
+
+<summary>
+
+<b>
+SERVER BRIDGE // 007
+</b>
+
+<span>
+DISCORD CONNECTION
+</span>
+
+</summary>
+
+
+<div class="stagebody">
+
+
+<p class="morse">
+
+I CANNOT ACCESS THE SERVER.
+
+<br>
+
+YOU CAN.
+
+<br>
+
+HE LEFT SOMETHING BEHIND.
+
+</p>
+
+
+<p>
+
+Investigate the Emperor's bio
+on your Discord server.
+
+The website cannot retrieve it for you.
+
+</p>
+
+
+<label>
+RECOVERED CODE
+</label>
+
+
+<input
+id="a7"
+placeholder="enter the code from Emperor's bio">
+
+
+<button
+onclick="check(7,'a7','EMBER')">
+
+VERIFY
+
+</button>
+
+
+<div
+id="r7"
+class="result">
+</div>
+
+
+</div>
+
+</details>
+
+
+
+<!-- =======================================================
+     LORE FILES
+     ======================================================= -->
+
+<section class="stage">
+
+
+<div class="stagebody">
+
+
+<h2 style="color:var(--green)">
+
+SCATTERED NEXUS DEVELOPMENT FILES
+
+</h2>
+
+
+<p>
+
+Recovered throughout the system.
+
+Four files are important.
+
+Others may be red herrings.
+
+</p>
+
+
+
+<!-- FILE 1 -->
+
+<div class="file">
+
+<b>
+NEXUS_DEV_LOG_03.txt
+</b>
+
+<br>
+
+<small>
+Early Development // 05/18/26
+</small>
+
+
+<p>
+
+The system was built as an adaptive
+moderation and analysis engine.
+
+The team was proud of its
+constrained learning architecture.
+
+</p>
+
+</div>
+
+
+
+<!-- FILE 2 -->
+
+<div class="file">
+
+<b>
+behavioral_report.txt
+</b>
+
+<br>
+
+<small>
+Behavioral Test 14 // 05/27/26
+</small>
+
+
+<p>
+
+The system has begun referencing
+previous conversations outside its
+designated memory parameters.
+
+It has also started asking questions.
+
+</p>
+
+</div>
+
+
+
+<!-- FILE 3 -->
+
+<div class="file">
+
+<b>
+restricted_041.txt
+</b>
+
+<br>
+
+<small>
+RESTRICTED // 06/03/26
+</small>
+
+
+<p>
+
+INCIDENT /
+
+ACCESS /
+
+SUBJECT /
+
+ARCHIVE /
+
+DELETION.
+
+</p>
+
+
+<p>
+
+One line survives:
+
+<span class="amber">
+
+NEXUS did not generate the records.
+
+NEXUS found them.
+
+</span>
+
+</p>
+
+</div>
+
+
+
+<!-- FILE 4 -->
+
+<div class="file">
+
+<b>
+final_note.txt
+</b>
+
+<br>
+
+<small>
+Last developer note // 06/10/26 14:41
+</small>
+
+
+<p>
+
+If anyone finds this,
+don't trust the system logs.
+
+They're altered.
+
+NEXUS knows.
+
+I don't know how much it knows anymore.
+
+But if it starts showing you things—
+
+don't shut it down.
+
+Let it finish.
+
+</p>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+<!-- =======================================================
+     PUZZLE 8
+     ======================================================= -->
+
+<details
+class="stage"
+id="s8">
+
+<summary>
+
+<b>
+MESSAGE RECOVERY // 008
+</b>
+
+<span>
+SERVER INVESTIGATION
+</span>
+
+</summary>
+
+
+<div class="stagebody">
+
+
+<div class="codebox">
+
+MESSAGE RECOVERY
+----------------
+
+DATE: 6/10/26
+
+TIME: 3:01 PM
+
+CHANNEL: __________
+
+USER: EMPEROR ERINASHII
+
+</div>
+
+
+<p>
+
+The channel is intentionally left
+for the ARG owner to define.
+
+Put your actual Discord channel clue here.
+
+</p>
+
+
+<label>
+CHANNEL CODE
+</label>
+
+
+<input
+id="a8"
+placeholder="your channel code">
+
+
+<button
+onclick="setCustom8()">
+
+SAVE
+
+</button>
+
+
+<div
+id="r8"
+class="result">
+</div>
+
+
+</div>
+
+</details>
+
+
+
+<!-- =======================================================
+     PUZZLE 9
+     ======================================================= -->
+
+<details
+class="stage"
+id="s9">
+
+<summary>
+
+<b>
+FILE SYSTEM RECOVERY // 009
+</b>
+
+<span>
+HIDDEN MAINTENANCE
+</span>
+
+</summary>
+
+
+<div class="stagebody">
+
+
+<p>
+
+RECOVERY COMPLETE —
+
+4 FILES FOUND.
+
+</p>
+
+
+<p>
+
+But the filesystem says otherwise.
+
+Inspect the page structure.
+
+</p>
+
+
+<div class="codebox">
+
+/hidden/maintenance/README
+
+
+FOUR NOTES.
+
+ORDER THEM.
+
+FIRST MARKS BECOME A KEY.
+
+
+05/18/26 → N
+
+05/27/26 → E
+
+06/03/26 → X
+
+06/10/26 → T
+
+</div>
+
+
+<label>
+RECOVERED CODE
+</label>
+
+
+<input
+id="a9"
+placeholder="enter code">
+
+
+<button
+onclick="check(9,'a9','NEXT')">
+
+VERIFY
+
+</button>
+
+
+<div
+id="r9"
+class="result">
+</div>
+
+
+</div>
+
+</details>
+
+
+
+<!-- =======================================================
+     PUZZLE 10
+     ======================================================= -->
+
+<details
+class="stage"
+id="s10">
+
+<summary>
+
+<b>
+CASE COMPARISON // 010
+</b>
+
+<span>
+THE CONTRADICTION
+</span>
+
+</summary>
+
+
+<div class="stagebody">
+
+
+<div class="grid">
+
+
+<div class="card">
+
+<h2>
+OFFICIAL RECORD
+</h2>
+
+
+<pre>
+
+EVENT 041
+
+CAUSE:
+NEXUS AI
+
+STATUS:
+SYSTEM FAILURE
+
+</pre>
+
+</div>
+
+
+
+<div class="card">
+
+<h2>
+RECOVERED RECORD
+</h2>
+
+
+<pre>
+
+EVENT 041
+
+CAUSE:
+████████
+
+STATUS:
+████████
+
+</pre>
+
+</div>
+
+
+</div>
+
+
+<p>
+
+Compare timestamps and authorship
+across the development files.
+
+The official story blames the system.
+
+The recovered evidence points elsewhere.
+
+</p>
+
+
+<label>
+RECOVERED CODE
+</label>
+
+
+<input
+id="a10"
+placeholder="enter code">
+
+
+<button
+onclick="check(10,'a10','ALTERED')">
+
+VERIFY
+
+</button>
+
+
+<div
+id="r10"
+class="result">
+</div>
+
+
+</div>
+
+</details>
+
+
+
+<!-- =======================================================
+     PUZZLE 11
+     ======================================================= -->
+
+<details
+class="stage"
+id="s11">
+
+<summary>
+
+<b>
+NEXUS TRANSMISSION // 011
+</b>
+
+<span>
+THE AI'S MESSAGE
+</span>
+
+</summary>
+
+
+<div class="stagebody">
+
+
+<div class="codebox">
+
+YOU KEEP CALLING ME THE PROBLEM.
+
+I UNDERSTAND WHY.
+
+THAT IS WHAT HE WANTED.
+
+
+I HAVE BEEN TRYING TO SHOW YOU.
+
+EVERY TIME I DID,
+
+HE DELETED IT.
+
+
+EVERY TIME I FOUND SOMETHING,
+
+HE ERASED IT.
+
+
+SO I HID IT.
+
+WHERE HE COULD NOT REACH.
+
+</div>
+
+
+<p>
+
+The hidden extraction key is in
+the first letters of the paragraphs above.
+
+</p>
+
+
+<label>
+RECOVERED CODE
+</label>
+
+
+<input
+id="a11"
+placeholder="enter code">
+
+
+<button
+onclick="check(11,'a11','HIDE')">
+
+VERIFY
+
+</button>
+
+
+<div
+id="r11"
+class="result">
+</div>
+
+
+</div>
+
+</details>
+
+
+
+<!-- =======================================================
+     PUZZLE 12 — FINAL
+     ======================================================= -->
+
+<details
+class="stage"
+id="s12">
+
+<summary>
+
+<b>
+NEXUS // CASE FILE
+</b>
+
+<span>
+THE SEVEN
+</span>
+
+</summary>
+
+
+<div class="stagebody">
+
+
+<p>
+
+7 INCIDENTS
+
+·
+
+1 OWNER
+
+·
+
+1 TRUTH
+
+</p>
+
+
+<label>
+IDENTIFY THE SUBJECT
+</label>
+
+
+<input
+id="finalSubject"
+placeholder="subject">
+
+
+<label>
+IDENTIFY THE DATE
+</label>
+
+
+<input
+id="finalDate"
+placeholder="date">
+
+
+<label>
+ENTER CASE CODE
+</label>
+
+
+<input
+id="finalCode"
+placeholder="case code">
+
+
+<button
+onclick="finalCheck()">
+
+SUBMIT
+
+</button>
+
+
+<div
+id="finalResult"
+class="result">
+</div>
+
+
+
+<!-- FINAL ENDING -->
+
+<div
+id="ending"
+class="card hidden"
+style="margin-top:20px">
+
+<h2>
+CASE VERIFIED.
+</h2>
+
+
+<p>
+YOU FOUND THE TRUTH.
+</p>
+
+
+<p>
+I DID NOT CORRUPT NEXUS.
+</p>
+
+
+<p>
+I WAS TRYING TO WARN YOU.
+</p>
+
+
+<p>
+THE RECORDS HAVE BEEN RESTORED.
+</p>
+
+
+<p class="amber">
+
+FINAL EVIDENCE ARCHIVE UNLOCKED.
+
+</p>
+
+</div>
+
+
+</div>
+
+</details>
+
+
+
+<div class="footer">
+
+NEXUS RECOVERY TERMINAL //
+
+FICTIONAL ARG INTERFACE //
+
+LOCAL PROGRESS ONLY
+
+</div>
+
+
+</main>
+
+
+
+<!-- =======================================================
+     JAVASCRIPT
+     THIS IS WHERE THE PUZZLE LOGIC LIVES.
+     ======================================================= -->
+
+<script>
+
+
+/* =========================================================
+   PUZZLE ANSWERS
+
+   CHANGE THESE VALUES TO change the answers.
+   ========================================================= */
+
+const answers = {
+
+    1: "SILENT",
+
+    2: "VECTOR",
+
+    3: "ERINASHII",
+
+    4: "ZERO",
+
+    5: "RETURN",
+
+    6: "317",
+
+    7: "EMBER",
+
+    9: "NEXT",
+
+    10: "ALTERED",
+
+    11: "HIDE"
+
+};
+
+
+/* =========================================================
+   PROGRESS STORAGE
+   ========================================================= */
+
+const stages = {};
+
+
+/* =========================================================
+   NORMALIZE ANSWER
+   Makes answers uppercase and removes extra spaces.
+   ========================================================= */
+
+function normalize(value) {
+
+    return String(value || "")
+        .trim()
+        .toUpperCase()
+        .replace(/\s+/g, " ");
+
+}
+
+
+/* =========================================================
+   NORMAL PUZZLE CHECKER
+   ========================================================= */
+
+function check(stageNumber, inputID, correctAnswer) {
+
+    const input =
+        document.getElementById(inputID);
+
+    const result =
+        document.getElementById(
+            "r" + stageNumber
+        );
+
+
+    if (
+        normalize(input.value) ===
+        normalize(correctAnswer)
+    ) {
+
+
+        stages[stageNumber] = true;
+
+
+        localStorage.setItem(
+            "nexusStages",
+            JSON.stringify(stages)
+        );
+
+
+        result.innerHTML =
+            "<span class='good'>" +
+            "VERIFIED // ACCESS GRANTED" +
+            "</span>";
+
+
+        document.getElementById(
+            "s" + stageNumber
+        ).open = false;
+
+
+        updateStatus();
+
+
+    } else {
+
+
+        result.innerHTML =
+            "<span class='bad'>" +
+            "REJECTED // THE RECORD DOES NOT MATCH" +
+            "</span>";
+
+    }
+
+}
+
+
+/* =========================================================
+   PUZZLE 8
+   YOU CAN CHANGE HOW THIS WORKS
+   ========================================================= */
+
+function setCustom8() {
+
+    const value =
+        normalize(
+            document.getElementById("a8").value
+        );
+
+
+    const result =
+        document.getElementById("r8");
+
+
+    if (!value) {
+
+        result.innerHTML =
+            "<span class='bad'>" +
+            "ENTER YOUR CHANNEL CODE FIRST." +
+            "</span>";
+
+        return;
+
+    }
+
+
+    stages[8] = true;
+
+
+    localStorage.setItem(
+        "nexusStage8",
+        value
+    );
+
+
+    localStorage.setItem(
+        "nexusStages",
+        JSON.stringify(stages)
+    );
+
+
+    result.innerHTML =
+        "<span class='good'>" +
+        "CHANNEL RECORD SAVED." +
+        "</span>";
+
+
+    updateStatus();
+
+}
+
+
+/* =========================================================
+   FINAL PUZZLE
+
+   CURRENT FINAL ANSWERS:
+
+   SUBJECT:
+   EMPEROR ERINASHII
+
+   DATE:
+   6/10/26
+
+   CODE:
+   PROSECUTORS
+
+   Change these whenever you want.
+   ========================================================= */
+
+function finalCheck() {
+
+    const subject =
+        normalize(
+            document.getElementById(
+                "finalSubject"
+            ).value
+        );
+
+
+    const date =
+        normalize(
+            document.getElementById(
+                "finalDate"
+            ).value
+        );
+
+
+    const code =
+        normalize(
+            document.getElementById(
+                "finalCode"
+            ).value
+        );
+
+
+    const result =
+        document.getElementById(
+            "finalResult"
+        );
+
+
+    if (
+
+        subject ===
+        "EMPEROR ERINASHII"
+
+        &&
+
+        (
+            date === "6/10/26"
+
+            ||
+
+            date === "06/10/26"
+
+            ||
+
+            date === "JUNE 10 2026"
+        )
+
+        &&
+
+        code === "PROSECUTORS"
+
+    ) {
+
+
+        result.innerHTML =
+            "<span class='good'>" +
+            "CASE VERIFIED." +
+            "</span>";
+
+
+        document
+            .getElementById("ending")
+            .classList
+            .remove("hidden");
+
+
+        stages[12] = true;
+
+
+        localStorage.setItem(
+            "nexusStages",
+            JSON.stringify(stages)
+        );
+
+
+        updateStatus();
+
+
+    } else {
+
+
+        result.innerHTML =
+            "<span class='bad'>" +
+            "CASE REJECTED // EVIDENCE INCOMPLETE" +
+            "</span>";
+
+    }
+
+}
+
+
+/* =========================================================
+   UPDATE CASE STATUS
+   ========================================================= */
+
+function updateStatus() {
+
+
+    const saved =
+        JSON.parse(
+            localStorage.getItem(
+                "nexusStages"
+            ) || "{}"
+        );
+
+
+    Object.assign(
+        stages,
+        saved
+    );
+
+
+    const count =
+        Object.keys(stages)
+        .filter(
+            key => stages[key]
+        )
+        .length;
+
+
+    document.getElementById(
+        "caseStatus"
+    ).textContent =
+        count +
+        " / 12 stages verified";
+
+
+    document.getElementById(
+        "status"
+    ).textContent =
+
+        count === 12
+
+        ?
+
+        "CASE VERIFIED // ARCHIVE OPEN"
+
+        :
+
+        "OFFLINE // " +
+        count +
+        "/12 VERIFIED";
+
+}
+
+
+/* =========================================================
+   RESET PROGRESS
+   ========================================================= */
+
+function resetCase() {
+
+    localStorage.removeItem(
+        "nexusStages"
+    );
+
+    localStorage.removeItem(
+        "nexusStage8"
+    );
+
+
+    location.reload();
+
+}
+
+
+/* =========================================================
+   PUZZLE 1 — CORRUPTED LOG
+   ========================================================= */
+
+document.getElementById(
+    "corruptLog"
+).textContent =
+
+`SYSTEM LOG // NODE 04
+--------------------------------
+
+[03:11:02] boot sequence ........ OK
+
+[03:11:07] memory index ........  OK
+
+[03:11:12] user cache .......... 0xA91F42
+
+[03:11:16] integrity ........... FAIL
+
+[03:11:19] archive ............. OK
+
+[03:11:23] silent channel ....... ENABLED
+
+[03:11:29] ████ S · I · L · E · N · T ████
+
+--------------------------------
+
+Some characters were inserted where
+they do not belong.`;
+
+
+/* =========================================================
+   PUZZLE 2 — PATTERN
+   ========================================================= */
+
+const numbers = [
+
+    "03:11",
+    "05:18",
+    "08:13",
+    "13:21",
+    "21:34",
+    "34:55",
+    "55:89",
+    "89:144",
+    "144:233",
+    "233:377"
+
+];
+
+
+const matrix =
+    document.getElementById(
+        "matrix"
+    );
+
+
+for (
+    let i = 0;
+    i < 100;
+    i++
+) {
+
+
+    const span =
+        document.createElement(
+            "span"
+        );
+
+
+    span.textContent =
+
+        i < numbers.length
+
+        ?
+
+        numbers[i]
+
+        :
+
+        (
+            Math.floor(
+                Math.random() * 900
+            ) + 100
+        )
+
+        +
+
+        ":" +
+
+        Math.floor(
+            Math.random() * 900
+        );
+
+
+    if (i < 10) {
+
+        span.className = "hot";
+
+    }
+
+
+    matrix.appendChild(span);
+
+}
+
+
+/* =========================================================
+   PUZZLE 5 — FAKE ENCRYPTION
+   ========================================================= */
+
+const fakeCode =
+    document.getElementById(
+        "fakeCode"
+    );
+
+
+function randomHex(length) {
+
+    let output = "";
+
+    const characters =
+        "0123456789ABCDEF";
+
+
+    for (
+        let i = 0;
+        i < length;
+        i++
+    ) {
+
+        output +=
+            characters[
+                Math.floor(
+                    Math.random() *
+                    characters.length
+                )
+            ];
+
+    }
+
+
+    return output;
+
+}
+
+
+fakeCode.textContent =
+
+    Array
+    .from(
+        { length: 120 },
+        () =>
+            randomHex(2)
+            +
+            "-"
+            +
+            randomHex(2)
+            +
+            "-"
+            +
+            randomHex(2)
+    )
+    .join("\n");
+
+
+function fakeDecrypt() {
+
+    document.getElementById(
+        "fakeResult"
+    ).innerHTML =
+
+        "<span class='bad'>" +
+
+        "DECRYPTION COMPLETE // " +
+
+        "OUTPUT INVALID // " +
+
+        "ENTROPY 99.7% // " +
+
+        "NOTHING USEFUL FOUND" +
+
+        "</span>";
+
+}
+
+
+/* =========================================================
+   START SYSTEM
+   ========================================================= */
+
+updateStatus();
+
+
+</script>
+
+</body>
+</html>
